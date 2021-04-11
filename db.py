@@ -14,7 +14,8 @@ class database(object):
         conn = sqlite3.connect('train.db') #connect to train database from csv
         conn.execute('DROP TABLE IF EXISTS train')
         c = conn.cursor()
-
+        
+        #create table with column names
         c.execute('''Create TABLE train(
                     x real,
                     y1 real,
@@ -25,6 +26,7 @@ class database(object):
         conn.commit()
 
         for row in range(0,train.shape[0]):
+            '''Loop through the columns in my df and fill one by one for insertion.'''
             col1 = train[train.columns[0]][row]
             col2 = train[train.columns[1]][row]
             col3 = train[train.columns[2]][row]
@@ -41,18 +43,21 @@ class database(object):
         conn = sqlite3.connect('ideal.db') #connect to train database from csv
         conn.execute('DROP TABLE IF EXISTS ideal')
         c = conn.cursor()
-
+        
+        #Here I create only one column manually, before adding multiple other columns in loop
         c.execute('''CREATE TABLE ideal (x REAL)''')
-
+        
         #Create all columns in loop
         col_names = ideal.columns
         for column_name in col_names[1:]:
+            '''I am adding multiple columns to the existing table, using the df I loaded.'''
             c.execute('''ALTER TABLE ideal ADD COLUMN ''' + column_name + ''' REAL''')
 
         #Insert all data in loop    
         col_array = np.array(ideal)
 
         for element in col_array:
+            '''Now I insert into all the 51 columns the data points from my dataframe'''
             placeholders = ', '.join(['?'] * ideal.shape[1])
             c.execute('''INSERT INTO ideal VALUES ({})'''.format(placeholders), element)   
         conn.commit()    
